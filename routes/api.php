@@ -14,4 +14,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::apiResource('users', UserController::class)->middleware('auth:api');
+
+Route::apiResource('users', UserController::class)
+    ->whereNumber('user')
+    ->middleware('auth:api');

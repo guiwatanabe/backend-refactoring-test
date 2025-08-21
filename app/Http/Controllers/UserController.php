@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
-    private User $user;
-
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -90,7 +87,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        return UserResource::collection($this->user->paginate(5));
+        return UserResource::collection(User::paginate(5));
     }
 
     /**
@@ -155,14 +152,21 @@ class UserController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *          @OA\JsonContent(ref="#/components/schemas/StoreUserRequest")
      *      ),
      *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
      *
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *          @OA\JsonContent(
+     *
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="object",
+     *                  ref="#/components/schemas/UserResource"
+     *              )
+     *          )
      *      ),
      *
      *      @OA\Response(
@@ -172,18 +176,24 @@ class UserController extends Controller
      *      @OA\Response(
      *          response=403,
      *          description="Forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error"
      *      )
      * )
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $data = $request->only([
+        $data = $request->safe()->only([
             'name',
             'email',
             'password',
         ]);
 
-        return $this->user->create($data);
+        $user = User::create($data);
+
+        return new UserResource($user);
     }
 
     /**
@@ -211,14 +221,21 @@ class UserController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *          @OA\JsonContent(ref="#/components/schemas/UpdateUserRequest")
      *      ),
      *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
      *
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *          @OA\JsonContent(
+     *
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="object",
+     *                  ref="#/components/schemas/UserResource"
+     *              )
+     *          )
      *      ),
      *
      *      @OA\Response(
@@ -228,12 +245,20 @@ class UserController extends Controller
      *      @OA\Response(
      *          response=403,
      *          description="Forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error"
      *      )
      * )
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $data = $request->only([
+        $data = $request->safe()->only([
             'name',
             'email',
             'password',
@@ -241,7 +266,7 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return $user;
+        return new UserResource($user);
     }
 
     /**
@@ -270,7 +295,14 @@ class UserController extends Controller
      *          response=200,
      *          description="Successful operation",
      *
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *          @OA\JsonContent(
+     *
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="User deleted successfully.",
+     *              )
+     *          )
      *      ),
      *
      *      @OA\Response(
@@ -280,13 +312,30 @@ class UserController extends Controller
      *      @OA\Response(
      *          response=403,
      *          description="Forbidden"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error"
      *      )
      * )
      */
     public function destroy(User $user)
     {
-        $user->delete();
+        try {
+            $user->delete();
 
-        return $user;
+            return response()->json([
+                'message' => 'User deleted successfully.',
+            ], Response::HTTP_OK);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Failed to delete user. Try again.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

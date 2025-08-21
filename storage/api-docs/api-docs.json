@@ -40,11 +40,11 @@
                                             "properties": {
                                                 "first": {
                                                     "type": "string",
-                                                    "example": "http://localhost:8080/api/users?page=1"
+                                                    "example": "http://localhost/api/users?page=1"
                                                 },
                                                 "last": {
                                                     "type": "string",
-                                                    "example": "http://localhost:8080/api/users?page=3"
+                                                    "example": "http://localhost/api/users?page=3"
                                                 },
                                                 "prev": {
                                                     "type": "string",
@@ -53,7 +53,7 @@
                                                 },
                                                 "next": {
                                                     "type": "string",
-                                                    "example": "http://localhost:8080/api/users?page=2",
+                                                    "example": "http://localhost/api/users?page=2",
                                                     "nullable": true
                                                 }
                                             },
@@ -93,7 +93,7 @@
                                                 },
                                                 "path": {
                                                     "type": "string",
-                                                    "example": "http://localhost:8080/api/users"
+                                                    "example": "http://localhost/api/users"
                                                 },
                                                 "per_page": {
                                                     "type": "integer",
@@ -141,7 +141,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/User"
+                                "$ref": "#/components/schemas/StoreUserRequest"
                             }
                         }
                     }
@@ -152,7 +152,12 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -162,6 +167,9 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    },
+                    "500": {
+                        "description": "Error"
                     }
                 },
                 "security": [
@@ -193,7 +201,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "$ref": "#/components/schemas/UserResource"
                                 }
                             }
                         }
@@ -231,7 +239,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/User"
+                                "$ref": "#/components/schemas/UpdateUserRequest"
                             }
                         }
                     }
@@ -242,7 +250,12 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -252,6 +265,12 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Error"
                     }
                 },
                 "security": [
@@ -281,7 +300,13 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -291,6 +316,12 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Error"
                     }
                 },
                 "security": [
@@ -303,6 +334,50 @@
     },
     "components": {
         "schemas": {
+            "StoreUserRequest": {
+                "title": "Store User",
+                "description": "User object used to store an user.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateUserRequest": {
+                "title": "Update User",
+                "description": "User object used to update an user.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password"
+                    }
+                },
+                "type": "object"
+            },
             "UserResource": {
                 "title": "User Resource",
                 "description": "User object returned in API responses",
@@ -321,59 +396,6 @@
                     }
                 },
                 "type": "object"
-            },
-            "User": {
-                "title": "User",
-                "description": "User model",
-                "properties": {
-                    "id": {
-                        "description": "User id",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "description": "User name",
-                        "type": "string",
-                        "example": "John Doe"
-                    },
-                    "email": {
-                        "description": "User email",
-                        "type": "string",
-                        "example": "example@elevensoft.dev"
-                    },
-                    "email_verified_at": {
-                        "description": "User email verified at",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2021-01-01 00:00:00"
-                    },
-                    "password": {
-                        "description": "User password",
-                        "type": "string",
-                        "example": "password"
-                    },
-                    "remember_token": {
-                        "description": "User remember token",
-                        "type": "string",
-                        "example": "token"
-                    },
-                    "created_at": {
-                        "description": "User created at",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2021-01-01 00:00:00"
-                    },
-                    "updated_at": {
-                        "description": "User updated at",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2021-01-01 00:00:00"
-                    }
-                },
-                "type": "object",
-                "xml": {
-                    "name": "User"
-                }
             }
         },
         "securitySchemes": {
