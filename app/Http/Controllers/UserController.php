@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -9,7 +10,7 @@ class UserController extends Controller
 {
     private User $user;
 
-    function __construct(User $user)
+    public function __construct(User $user)
     {
         $this->user = $user;
     }
@@ -28,16 +29,55 @@ class UserController extends Controller
      *      security={
      *          {"bearerAuth": {}}
      *      },
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(
-     *                  ref="#/components/schemas/User"
+     *              type="object",
+     *
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *
+     *                  @OA\Items(ref="#/components/schemas/UserResource")
+     *              ),
+     *
+     *              @OA\Property(
+     *                  property="links",
+     *                  type="object",
+     *                  @OA\Property(property="first", type="string", example="http://localhost/api/users?page=1"),
+     *                  @OA\Property(property="last", type="string", example="http://localhost/api/users?page=3"),
+     *                  @OA\Property(property="prev", type="string", nullable=true, example=null),
+     *                  @OA\Property(property="next", type="string", nullable=true, example="http://localhost/api/users?page=2")
+     *              ),
+     *              @OA\Property(
+     *                  property="meta",
+     *                  type="object",
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="from", type="integer", example=1),
+     *                  @OA\Property(property="last_page", type="integer", example=3),
+     *                  @OA\Property(
+     *                      property="links",
+     *                      type="array",
+     *
+     *                      @OA\Items(
+     *                          type="object",
+     *
+     *                          @OA\Property(property="url", type="string", nullable=true),
+     *                          @OA\Property(property="label", type="string"),
+     *                          @OA\Property(property="active", type="boolean")
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="path", type="string", example="http://localhost/api/users"),
+     *                  @OA\Property(property="per_page", type="integer", example=5),
+     *                  @OA\Property(property="to", type="integer", example=5),
+     *                  @OA\Property(property="total", type="integer", example=11)
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=401,
      *          description="Unauthenticated",
@@ -50,7 +90,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->user->get();
+        return UserResource::collection($this->user->paginate(5));
     }
 
     /**
@@ -67,17 +107,21 @@ class UserController extends Controller
      *      security={
      *          {"bearerAuth": {}}
      *      },
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="User ID",
      *          required=true,
      *          in="path",
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
-     *          @OA\JsonContent(ref="#/components/schemas/User")
+     *
+     *          @OA\JsonContent(ref="#/components/schemas/UserResource")
      *      ),
+     *
      *      @OA\Response(
      *          response=401,
      *          description="Unauthenticated",
@@ -90,7 +134,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return $user;
+        return new UserResource($user);
     }
 
     /**
@@ -107,15 +151,20 @@ class UserController extends Controller
      *      security={
      *          {"bearerAuth": {}}
      *      },
+     *
      *      @OA\RequestBody(
      *          required=true,
+     *
      *          @OA\JsonContent(ref="#/components/schemas/User")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(ref="#/components/schemas/User")
      *      ),
+     *
      *      @OA\Response(
      *          response=401,
      *          description="Unauthenticated",
@@ -151,21 +200,27 @@ class UserController extends Controller
      *      security={
      *          {"bearerAuth": {}}
      *      },
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="User ID",
      *          required=true,
      *          in="path",
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
+     *
      *          @OA\JsonContent(ref="#/components/schemas/User")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(ref="#/components/schemas/User")
      *      ),
+     *
      *      @OA\Response(
      *          response=401,
      *          description="Unauthenticated",
@@ -203,17 +258,21 @@ class UserController extends Controller
      *      security={
      *          {"bearerAuth": {}}
      *      },
+     *
      *      @OA\Parameter(
      *          name="id",
      *          description="User ID",
      *          required=true,
      *          in="path",
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(ref="#/components/schemas/User")
      *      ),
+     *
      *      @OA\Response(
      *          response=401,
      *          description="Unauthenticated",
@@ -231,4 +290,3 @@ class UserController extends Controller
         return $user;
     }
 }
-
