@@ -280,13 +280,6 @@
         },
         "securitySchemes": {
             "bearerAuth": {
-                "type": "http",
-                "name": "bearerAuth",
-                "in": "header",
-                "bearerFormat": "JWT",
-                "scheme": "bearer"
-            },
-            "passport": {
                 "type": "oauth2",
                 "description": "Laravel passport oauth2 security.",
                 "in": "header",
@@ -301,5 +294,10 @@
                 }
             }
         }
-    }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
 }
