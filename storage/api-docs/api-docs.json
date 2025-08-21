@@ -23,6 +23,28 @@
                 "summary": "Get list of users",
                 "description": "Returns list of users",
                 "operationId": "getUsersList",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filter users by name (partial match).",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "John"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Filter users by email (partial match).",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "john@doe.com"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",

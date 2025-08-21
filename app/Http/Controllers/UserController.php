@@ -6,12 +6,18 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\QueryFilterService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
+    public function __construct(
+        protected QueryFilterService $queryFilterService
+    ) {
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -26,6 +32,30 @@ class UserController extends Controller
      *      security={
      *          {"bearerAuth": {}}
      *      },
+     *
+     *      @OA\Parameter(
+     *          name="name",
+     *          in="query",
+     *          description="Filter users by name (partial match).",
+     *          required=false,
+     *
+     *          @OA\Schema(
+     *              type="string",
+     *              example="John"
+     *          )
+     *      ),
+     *
+     *      @OA\Parameter(
+     *          name="email",
+     *          in="query",
+     *          description="Filter users by email (partial match).",
+     *          required=false,
+     *
+     *          @OA\Schema(
+     *              type="string",
+     *              example="john@doe.com"
+     *          )
+     *      ),
      *
      *      @OA\Response(
      *          response=200,
@@ -87,7 +117,16 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        return UserResource::collection(User::paginate(5));
+        $rules = collect(User::$filterable)
+            ->mapWithKeys(fn ($filter, $key) => [$key => $filter['validation']])
+            ->toArray();
+
+        $validated = $request->validate($rules);
+
+        $query = User::query();
+        $query = $this->queryFilterService->applyFilters($query, $validated, User::$filterable);
+
+        return UserResource::collection($query->paginate(5));
     }
 
     /**

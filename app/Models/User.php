@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -40,5 +40,21 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+    ];
+
+    /**
+     * Filterable fields, for use in query searches
+     */
+    public static array $filterable = [
+        'name' => [
+            'column' => 'name',
+            'method' => 'like',
+            'validation' => 'sometimes|string|min:1|max:255',
+        ],
+        'email' => [
+            'column' => 'email',
+            'method' => 'like',
+            'validation' => 'sometimes|string|min:1|max:255',
+        ],
     ];
 }
