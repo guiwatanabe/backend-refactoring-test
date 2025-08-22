@@ -217,6 +217,10 @@ class UserController extends Controller
      *          description="Forbidden"
      *      ),
      *      @OA\Response(
+     *          response=422,
+     *          description="Validation Error"
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error"
      *      )
@@ -224,11 +228,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $data = $request->safe()->only([
-            'name',
-            'email',
-            'password',
-        ]);
+        $data = $request->validated();
 
         $user = User::create($data);
 
@@ -290,6 +290,10 @@ class UserController extends Controller
      *          description="User not found"
      *      ),
      *      @OA\Response(
+     *          response=422,
+     *          description="Validation error"
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error"
      *      )
@@ -297,11 +301,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $data = $request->safe()->only([
-            'name',
-            'email',
-            'password',
-        ]);
+        $data = $request->validated();
 
         $user->update($data);
 
