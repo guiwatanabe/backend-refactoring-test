@@ -360,10 +360,6 @@
                 "title": "Store User",
                 "description": "User object used to store an user.",
                 "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
                     "name": {
                         "type": "string",
                         "example": "John Doe"

@@ -12,7 +12,6 @@ use Illuminate\Validation\Rules\Password;
  *     title="Store User",
  *     description="User object used to store an user.",
  *
- *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="John Doe"),
  *     @OA\Property(property="email", type="string", example="john@example.com"),
  *     @OA\Property(property="password", type="string", format="password", example="password")
